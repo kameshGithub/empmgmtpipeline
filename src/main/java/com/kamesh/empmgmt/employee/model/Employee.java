@@ -17,11 +17,11 @@ public class Employee {
 
 	private String lastName;
 
-	private Date dob;
+	private Date dateOfBirth;
 
-	private Date doj;	
+	private Date dateOfEmployment;	
 	
-	private EmployeeStatus status= EmployeeStatus.ACTIVE;
+	private boolean  status = EmployeeStatus.ACTIVE.getValue();
 
 	public String getId() {
 		return id;
@@ -55,27 +55,27 @@ public class Employee {
 		this.lastName = lastName;
 	}
 
-	public Date getDob() {
-		return dob;
+	public Date getDateOfBirth() {
+		return dateOfBirth;
 	}
 
-	public void setDob(Date dob) {
-		this.dob = dob;
+	public void setDateOfBirth(Date dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
 	}
 
-	public Date getDoj() {
-		return doj;
+	public Date getDateOfEmployment() {
+		return dateOfEmployment;
 	}
 
-	public void setDoj(Date doj) {
-		this.doj = doj;
+	public void setDateOfEmployment(Date dateOfEmployment) {
+		this.dateOfEmployment = dateOfEmployment;
 	}
 
-	public EmployeeStatus getStatus() {
+	public boolean getStatus() {
 		return status;
 	}
 
-	public void setStatus(EmployeeStatus status) {
+	public void setStatus(boolean status) {
 		this.status = status;
 	}
 }

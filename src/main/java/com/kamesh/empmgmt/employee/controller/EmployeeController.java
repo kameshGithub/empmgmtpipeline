@@ -38,14 +38,14 @@ public class EmployeeController {
 	@GetMapping("/employees")
 	public List<Employee> getActiveEmployees() {
 		System.out.println("Get all Employees...");
-	    return employeeRepository.findByStatus(EmployeeStatus.ACTIVE);		
+	    return employeeRepository.findByStatus(EmployeeStatus.ACTIVE.getValue());		
 	}
 	/**
 	 * 
 	 * @param customer
 	 * @return
 	 */
-	@PostMapping("/employees/create")
+	@PostMapping("/employee")
 	public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee customer) {
 		System.out.println("Create Employee: " + customer.toString() + "...");
 		return new ResponseEntity<>(employeeRepository.save(customer), HttpStatus.CREATED);
@@ -68,8 +68,8 @@ public class EmployeeController {
 		employeeData.setFirstName(employee.getFirstName());
 		employeeData.setLastName(employee.getLastName());
 		employeeData.setMiddleInitial(employee.getMiddleInitial());
-		employeeData.setDob(employee.getDob());
-		employeeData.setDoj(employee.getDoj());
+		employeeData.setDateOfBirth(employee.getDateOfBirth());
+		employeeData.setDateOfEmployment(employee.getDateOfEmployment());
 		employeeData.setStatus(employee.getStatus());
 		
 		Employee updatedcustomer = employeeRepository.save(employeeData);
@@ -88,7 +88,7 @@ public class EmployeeController {
 		if (employeeData == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		employeeData.setStatus(EmployeeStatus.INACTIVE);
+		employeeData.setStatus(EmployeeStatus.INACTIVE.getValue());
 		Employee deactivatedCustomer = employeeRepository.save(employeeData);
 		return new ResponseEntity<>(deactivatedCustomer, HttpStatus.OK);		
 	}
