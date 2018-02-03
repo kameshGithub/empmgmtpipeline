@@ -40,13 +40,22 @@ public class EmployeeController {
 		System.out.println("Get all Employees...");
 	    return employeeRepository.findByStatus(EmployeeStatus.ACTIVE);		
 	}
-
+	/**
+	 * 
+	 * @param customer
+	 * @return
+	 */
 	@PostMapping("/employees/create")
-	public Employee createEmployee(@Valid @RequestBody Employee customer) {
+	public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee customer) {
 		System.out.println("Create Employee: " + customer.toString() + "...");
-		return employeeRepository.save(customer);
+		return new ResponseEntity<>(employeeRepository.save(customer), HttpStatus.CREATED);
 	}
-
+	/**
+	 * 
+	 * @param id
+	 * @param employee
+	 * @return
+	 */
 	@PutMapping("/employees/{id}")
 	public ResponseEntity<Employee> updateEmployee(@PathVariable("id") String id, @RequestBody Employee employee) {
 		System.out.println("Update Employee with ID = " + id + "...");
@@ -55,33 +64,53 @@ public class EmployeeController {
 		if (employee == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-
+		
 		employeeData.setFirstName(employee.getFirstName());
 		employeeData.setLastName(employee.getLastName());
 		employeeData.setMiddleInitial(employee.getMiddleInitial());
 		employeeData.setDob(employee.getDob());
 		employeeData.setDoj(employee.getDoj());
 		employeeData.setStatus(employee.getStatus());
-
+		
 		Employee updatedcustomer = employeeRepository.save(employeeData);
 		return new ResponseEntity<>(updatedcustomer, HttpStatus.OK);
 	}
-
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
 	@DeleteMapping("/employees/{id}")
+	public ResponseEntity<Employee> deleteByDeactivateEmployee(@PathVariable("id") String id) {
+		System.out.println("Delete Employee with ID = " + id + "...");
+		Employee employeeData = employeeRepository.findOne(id);
+		if (employeeData == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		employeeData.setStatus(EmployeeStatus.INACTIVE);
+		Employee deactivatedCustomer = employeeRepository.save(employeeData);
+		return new ResponseEntity<>(deactivatedCustomer, HttpStatus.OK);		
+	}
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@DeleteMapping("/employees1/{id}")
 	public ResponseEntity<String> deleteEmployee(@PathVariable("id") String id) {
 		System.out.println("Delete Employee with ID = " + id + "...");
-
 		employeeRepository.delete(id);
-
 		return new ResponseEntity<>("Employee has been deleted!", HttpStatus.OK);
 	}
-
-	@DeleteMapping("/employees/delete")
+	/**
+	 * 
+	 * @return
+	 */
+	@DeleteMapping("/employees")
 	public ResponseEntity<String> deleteAllEmployees() {
 		System.out.println("Delete All Employees...");
-
 		employeeRepository.deleteAll();
-
 		return new ResponseEntity<>("All employees have been deleted!", HttpStatus.OK);
 	}
 }
