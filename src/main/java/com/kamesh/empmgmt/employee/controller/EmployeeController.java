@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -133,8 +134,9 @@ public class EmployeeController {
 	 * @param id
 	 * @return
 	 */
+	@Secured("ROLE_ADMIN")
 	@DeleteMapping("/employees/{id}")
-	public ResponseEntity<Employee> deleteByDeactivateEmployee(@PathVariable("id") String id) {
+	public ResponseEntity<Employee> deleteByDeactivateEmployee(@PathVariable("id") String id) {		
 		System.out.println("Delete Employee with ID = " + id + "...");
 		Employee employeeData = employeeRepository.findOne(id);
 		if (employeeData == null) {
@@ -150,7 +152,7 @@ public class EmployeeController {
 	 * @param id
 	 * @return
 	 */
-	@DeleteMapping("/employees1/{id}")
+	@DeleteMapping("/actual/employees/{id}")
 	public ResponseEntity<String> deleteEmployee(@PathVariable("id") String id) {
 		System.out.println("Delete Employee with ID = " + id + "...");
 		employeeRepository.delete(id);
@@ -161,7 +163,7 @@ public class EmployeeController {
 	 * 
 	 * @return
 	 */
-	@DeleteMapping("/employees")
+	@DeleteMapping("/actual/employees")
 	public ResponseEntity<String> deleteAllEmployees() {
 		System.out.println("Delete All Employees...");
 		employeeRepository.deleteAll();
