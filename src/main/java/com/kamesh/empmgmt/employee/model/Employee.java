@@ -5,13 +5,14 @@ import java.util.Date;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
 @Document(collection = "employee")
 public class Employee {
 	@Id
 	private String id;
 
-    private String firstName;
+	private Long employeeId;
+
+	private String firstName;
 
 	private String middleInitial;
 
@@ -19,9 +20,9 @@ public class Employee {
 
 	private Date dateOfBirth;
 
-	private Date dateOfEmployment;	
-	
-	private boolean  status = EmployeeStatus.ACTIVE.getValue();
+	private Date dateOfEmployment;
+
+	private boolean status = EmployeeStatus.ACTIVE.getValue();
 
 	public String getId() {
 		return id;
@@ -29,6 +30,14 @@ public class Employee {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public Long getEmployeeId() {
+		return employeeId;
+	}
+
+	public void setEmployeeId(Long employeeId) {
+		this.employeeId = employeeId;
 	}
 
 	public String getFirstName() {
