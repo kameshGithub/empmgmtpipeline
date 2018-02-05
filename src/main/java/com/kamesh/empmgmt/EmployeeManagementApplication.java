@@ -2,9 +2,13 @@ package com.kamesh.empmgmt;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.ComponentScan;
 
+@ComponentScan(basePackages = "com.kamesh.empmgmt")
 @SpringBootApplication
-public class EmployeeManagementApplication{
+//@EnableGlobalMethodSecurity(securedEnabled = true)
+public class EmployeeManagementApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(EmployeeManagementApplication.class, args);
