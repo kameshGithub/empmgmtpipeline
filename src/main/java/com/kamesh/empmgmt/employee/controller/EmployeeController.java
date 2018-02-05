@@ -135,15 +135,15 @@ public class EmployeeController {
 	 */
 	
 	@DeleteMapping("/employees/{id}")
-	public ResponseEntity<Employee> deleteByDeactivateEmployee(@PathVariable("id") String id) {		
+	public ResponseEntity<String> deleteByDeactivateEmployee(@PathVariable("id") String id) {		
 		System.out.println("Delete Employee with ID = " + id + "...");
 		Employee employeeData = employeeRepository.findOne(id);
 		if (employeeData == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		employeeData.setStatus(EmployeeStatus.INACTIVE.getValue());
-		Employee deactivatedCustomer = employeeRepository.save(employeeData);
-		return new ResponseEntity<>(deactivatedCustomer, HttpStatus.OK);
+		employeeRepository.save(employeeData);
+		return new ResponseEntity<>("The employee has been deleted!",HttpStatus.OK);
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class EmployeeController {
 	public ResponseEntity<String> deleteEmployee(@PathVariable("id") String id) {
 		System.out.println("Delete Employee with ID = " + id + "...");
 		employeeRepository.delete(id);
-		return new ResponseEntity<>("Employee has been deleted!", HttpStatus.OK);
+		return new ResponseEntity<>("The employee has been deleted!", HttpStatus.OK);
 	}
 
 	/**
