@@ -70,7 +70,7 @@ public class EmployeeController {
 		employeeToSearch.setEmployeeId(id);
 		Example<Employee> example = Example.of(employeeToSearch);
 		Employee employeeData = employeeRepository.findOne(example);
-		
+
 		if (employeeData == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
@@ -88,20 +88,7 @@ public class EmployeeController {
 		System.out.println("Create Employee: " + employee.toString() + "...");
 		return new ResponseEntity<>(employeeRepository.save(employee), HttpStatus.CREATED);
 	}
-
-	/**
-	 * 
-	 * @param customer
-	 * @return
-	 */
-	@PostMapping("/employees")
-	public ResponseEntity<String> createEmployees(@Valid @RequestBody List<Employee> employeesList) {
-		System.out.println("Creating " + employeesList.size() + " Employees in bulk...");
-		List<Employee> savedEmployees = employeeRepository.save(employeesList);
-		return new ResponseEntity<>("Total " + savedEmployees.size() + "Employess created in bulk.",
-				HttpStatus.CREATED);
-	}
-
+	
 	/**
 	 * 
 	 * @param id
@@ -133,9 +120,9 @@ public class EmployeeController {
 	 * @param id
 	 * @return
 	 */
-	
+
 	@DeleteMapping("/employees/{id}")
-	public ResponseEntity<String> deleteByDeactivateEmployee(@PathVariable("id") String id) {		
+	public ResponseEntity<String> deleteByDeactivateEmployee(@PathVariable("id") String id) {
 		System.out.println("Delete Employee with ID = " + id + "...");
 		Employee employeeData = employeeRepository.findOne(id);
 		if (employeeData == null) {
@@ -143,7 +130,7 @@ public class EmployeeController {
 		}
 		employeeData.setStatus(EmployeeStatus.INACTIVE.getValue());
 		employeeRepository.save(employeeData);
-		return new ResponseEntity<>("The employee has been deleted!",HttpStatus.OK);
+		return new ResponseEntity<>("The employee has been deleted!", HttpStatus.OK);
 	}
 
 	/**
@@ -169,16 +156,21 @@ public class EmployeeController {
 		return new ResponseEntity<>("All employees have been deleted!", HttpStatus.OK);
 	}
 
-	
 	@PostMapping("/employees/injest")
-	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+	public ResponseEntity<InjestionResponse> uploadFile(@RequestParam("file") MultipartFile file) {
+		List<Employee> savedEmployees = null;
+		List<Employee> employees = null;		
 		try {
-			List<Employee> employees = this.extractEntities(this.readCSV(file));
-			this.createEmployees(employees);
+			employees = this.extractEntities(this.readCSV(file));
+			// this.createEmployees(employees);
+			System.out.println("Creating " + employees.size() + " Employees in bulk...");
+			savedEmployees = employeeRepository.save(employees);
 		} catch (SecurityException se) {
-			return new ResponseEntity<>("Could not process file", HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(new InjestionResponse(employees==null?0:employees.size()), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>("All employees have been deleted!", HttpStatus.OK);
+		InjestionResponse injestResponse = new InjestionResponse(employees.size(), savedEmployees.size(), savedEmployees.size(), employees.size() - savedEmployees.size());
+		
+		return new ResponseEntity<>(injestResponse,HttpStatus.OK);
 	}
 
 	/**
@@ -193,7 +185,7 @@ public class EmployeeController {
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
-		records.remove(0);
+		records.remove(0); // Remove header read from file to prevent adding it.
 		return records;
 	}
 
@@ -210,7 +202,7 @@ public class EmployeeController {
 			Employee employee = new Employee();
 			String str = value.get(0);
 			str = str.trim().substring(1);
-			//employee.setId();  // Not to save
+			// employee.setId(); // Not to save
 			employee.setEmployeeId(Long.valueOf(str));
 			employee.setFirstName(value.get(1).trim());
 			employee.setMiddleInitial(value.get(2).trim());
@@ -227,5 +219,67 @@ public class EmployeeController {
 			employeesTobeCreated.add(employee);
 		});
 		return employeesTobeCreated;
+	}
+	class InjestionResponse {
+		int requested;
+		int processed;
+		int success;
+		int failure;
+		String message;
+		public InjestionResponse(int requested) {
+			super();
+			this.requested = requested;
+			this.processed = 0;
+			this.success = 0;
+			this.failure = 0;
+			this.message ="Error, Employees not created!";
+		}
+		public InjestionResponse(int requested, int processed, int success, int failure) {
+			super();
+			this.requested = requested;
+			this.processed = processed;
+			this.success = success;
+			this.failure = failure;
+			this.message = new String("Total " + this.success + " out of " + this.requested + " Employees created!");
+		}
+
+		public int getRequested() {
+			return requested;
+		}
+
+		public void setRequested(int requested) {
+			this.requested = requested;
+		}
+
+		public int getProcessed() {
+			return processed;
+		}
+
+		public void setProcessed(int processed) {
+			this.processed = processed;
+		}
+
+		public int getSuccess() {
+			return success;
+		}
+
+		public void setSuccess(int success) {
+			this.success = success;
+		}
+
+		public int getFailure() {
+			return failure;
+		}
+
+		public void setFailure(int failure) {
+			this.failure = failure;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+		public void setMessage(String message) {
+			this.message = message;
+		}
 	}
 }
