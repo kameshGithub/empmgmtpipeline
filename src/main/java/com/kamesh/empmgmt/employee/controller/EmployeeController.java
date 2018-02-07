@@ -43,7 +43,7 @@ import com.kamesh.empmgmt.employee.repo.EmployeeMongoRepository;
  * @author KAMESHC
  *
  */
-@CrossOrigin(origins = "http://localhost:4100")
+@CrossOrigin(origins = "https://empmgmtweb.herokuapp.com/")
 @RestController
 @RequestMapping("/api")
 public class EmployeeController {
@@ -52,14 +52,20 @@ public class EmployeeController {
 	EmployeeMongoRepository employeeRepository;
 	@Autowired
 	private Environment env;
-	
+	/**
+	 * API to get random number to set for employee ID.
+	 * @return
+	 */
 	private long getNextEmpId(){
 		Random r = new Random();
 		int low = 1;
 		int high = 100000;
 		return r.nextInt(high-low) + low;		
 	}
-	
+	/**
+	 * GET ReST endpoint for getting all the employees whether Status is ACTIVE or INACTIVE.
+	 * @return
+	 */
 	@GetMapping("/employees/all")
 	public List<Employee> getAllEmployees() {
 		System.out.println("Get all Employees...");
@@ -67,7 +73,7 @@ public class EmployeeController {
 	}
 
 	/**
-	 * 
+	 * GET ReST endpoint for getting all the employees which are with status ACTIVE.
 	 * @return
 	 */
 	@GetMapping("/employees")
@@ -77,7 +83,7 @@ public class EmployeeController {
 	}
 
 	/**
-	 * Getting employee by id and return only if status is ACTIVE.
+	 * GET ReST endpoint for getting employee by id and return only if status is ACTIVE.
 	 * 
 	 * @return
 	 */
@@ -97,7 +103,7 @@ public class EmployeeController {
 	}
 
 	/**
-	 * 
+	 * POST ReST end point to create a new active employee.
 	 * @param customer
 	 * @return
 	 */
@@ -109,7 +115,7 @@ public class EmployeeController {
 	}
 	
 	/**
-	 * 
+	 * Put ReST end point to update the specific employee.
 	 * @param id
 	 * @param employee
 	 * @return
@@ -135,7 +141,8 @@ public class EmployeeController {
 	}
 
 	/**
-	 * 
+	 * Delete end point to update the status of the employee as "INACTIVE" in database. 
+	 * This ReST is used to achieve delete as inactive employees are not retruned in the resposne.
 	 * @param id
 	 * @return
 	 */
@@ -153,7 +160,7 @@ public class EmployeeController {
 	}
 
 	/**
-	 * 
+	 * Delete end point to ACTUALLY delete the single employee from database. This ReST is not directly used.
 	 * @param id
 	 * @return
 	 */
@@ -165,7 +172,7 @@ public class EmployeeController {
 	}
 
 	/**
-	 * 
+	 * Delete end point to ACTUALLY delete all the employees from database. This ReST is not directly used.
 	 * @return
 	 */
 	@DeleteMapping("/actual/employees")
@@ -174,7 +181,11 @@ public class EmployeeController {
 		employeeRepository.deleteAll();
 		return new ResponseEntity<>("All employees have been deleted!", HttpStatus.OK);
 	}
-
+	/**
+	 * ReST end point to support injesting employees via upload of csv file.  
+	 * @param file
+	 * @return
+	 */
 	@PostMapping("/employees/injest")
 	public ResponseEntity<InjestionResponse> uploadFile(@RequestParam("file") MultipartFile file) {
 		List<Employee> savedEmployees = null;
@@ -222,7 +233,7 @@ public class EmployeeController {
 	}
 	
 	/**
-	 * 
+	 * API to read the CSV file of list of employees
 	 * @param fileName
 	 * @return
 	 */
@@ -238,7 +249,7 @@ public class EmployeeController {
 	}
 
 	/**
-	 * 
+	 * API to create Employee entity out of the data read from CSV file
 	 * @param values
 	 * @return
 	 */
@@ -270,7 +281,7 @@ public class EmployeeController {
 	}
 	
 	/**
-	 * 
+	 * Inner class to generate employee file injest response.
 	 * 
 	 *
 	 */

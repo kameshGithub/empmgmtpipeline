@@ -1,5 +1,9 @@
 package com.kamesh.empmgmt.employee.model;
-
+/**
+ * Employee status enum
+ * @author KAMESHC
+ *
+ */
 public enum EmployeeStatus {
 	ACTIVE(true),
 	INACTIVE(false);

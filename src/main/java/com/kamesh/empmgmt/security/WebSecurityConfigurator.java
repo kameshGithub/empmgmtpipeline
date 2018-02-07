@@ -8,7 +8,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-
+/**
+ * Web security configuration to ensure the security entry points and authentication.
+ * @author KAMESHC
+ *
+ */
 
 @Configuration
 @EnableWebSecurity

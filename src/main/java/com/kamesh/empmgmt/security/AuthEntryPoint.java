@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package com.kamesh.empmgmt.security;
 
 import java.io.IOException;
@@ -10,7 +13,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-
+/**
+ * Spring security authentication entry point. To ensure authorized user has access to ReST resources. 
+ * @author KAMESHC
+ *
+ */
 @Component
 public class AuthEntryPoint extends BasicAuthenticationEntryPoint {
 

@@ -1,10 +1,18 @@
+/**
+ * 
+ */
 package com.kamesh.empmgmt.employee.model;
 
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
+/**
+ * Employee Entity for data persistance
+ * 
+ * @author KAMESHC
+ *
+ */
 @Document(collection = "employee")
 public class Employee {
 	@Id
