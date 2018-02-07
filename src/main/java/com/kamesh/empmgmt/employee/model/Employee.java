@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Employee {
 	@Id
 	private String id;
-
+		
 	private Long employeeId;
 
 	private String firstName;
@@ -18,7 +18,7 @@ public class Employee {
 
 	private String lastName;
 
-	private Date dateOfBirth;
+	private String dateOfBirth;
 
 	private Date dateOfEmployment;
 
@@ -64,11 +64,11 @@ public class Employee {
 		this.lastName = lastName;
 	}
 
-	public Date getDateOfBirth() {
+	public String getDateOfBirth() {
 		return dateOfBirth;
 	}
 
-	public void setDateOfBirth(Date dateOfBirth) {
+	public void setDateOfBirth(String dateOfBirth) {
 		this.dateOfBirth = dateOfBirth;
 	}
 

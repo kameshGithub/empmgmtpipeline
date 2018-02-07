@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package com.kamesh.empmgmt.employee.controller;
 
 import java.io.BufferedReader;
@@ -9,11 +12,13 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +38,11 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.kamesh.empmgmt.employee.model.Employee;
 import com.kamesh.empmgmt.employee.model.EmployeeStatus;
 import com.kamesh.empmgmt.employee.repo.EmployeeMongoRepository;
-
+/**
+ * An Employee ReST controller class supporting HTTP Methods GET, POST, PUT, DELETE on employee resource.
+ * @author KAMESHC
+ *
+ */
 @CrossOrigin(origins = "http://localhost:4100")
 @RestController
 @RequestMapping("/api")
@@ -41,7 +50,16 @@ public class EmployeeController {
 
 	@Autowired
 	EmployeeMongoRepository employeeRepository;
-
+	@Autowired
+	private Environment env;
+	
+	private long getNextEmpId(){
+		Random r = new Random();
+		int low = 1;
+		int high = 100000;
+		return r.nextInt(high-low) + low;		
+	}
+	
 	@GetMapping("/employees/all")
 	public List<Employee> getAllEmployees() {
 		System.out.println("Get all Employees...");
@@ -86,6 +104,7 @@ public class EmployeeController {
 	@PostMapping("/employee")
 	public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {
 		System.out.println("Create Employee: " + employee.toString() + "...");
+		employee.setEmployeeId(getNextEmpId());
 		return new ResponseEntity<>(employeeRepository.save(employee), HttpStatus.CREATED);
 	}
 	
@@ -159,20 +178,49 @@ public class EmployeeController {
 	@PostMapping("/employees/injest")
 	public ResponseEntity<InjestionResponse> uploadFile(@RequestParam("file") MultipartFile file) {
 		List<Employee> savedEmployees = null;
-		List<Employee> employees = null;		
+		List<Employee> employees = null;
+		List<Employee> finalList = new ArrayList<Employee>();
 		try {
+			List<Employee> existingEmployees = null;
+			ArrayList currentIds = new ArrayList();
+			ArrayList newIds = new ArrayList();
+		
 			employees = this.extractEntities(this.readCSV(file));
-			// this.createEmployees(employees);
-			System.out.println("Creating " + employees.size() + " Employees in bulk...");
-			savedEmployees = employeeRepository.save(employees);
+			String idStrategy = env.getProperty("employee.injest.id.strategy").trim();
+			// ignoreInput strategy means, ignore ID column in file
+			if(idStrategy.equalsIgnoreCase("ignoreInput")) {
+				employees.forEach(item->{
+					item.setEmployeeId(getNextEmpId());
+					finalList.add(item);
+				});
+			}else {  
+				// in this strategy, the application will consider employee id from file and
+				//duplicate id entry will not be created
+				existingEmployees = employeeRepository.findAll();
+				existingEmployees.forEach(item->{
+					currentIds.add(item.getEmployeeId());
+				});
+				employees.forEach(item->{
+					newIds.add(item.getEmployeeId());
+				});
+				newIds.removeAll(currentIds);
+				
+				employees.forEach(item->{
+					if(newIds.contains(item.getEmployeeId())) {
+						finalList.add(item);
+					}
+				});
+			}
+			System.out.println("Creating " + finalList.size() + " Employees in bulk...");
+			savedEmployees = employeeRepository.save(finalList);
 		} catch (SecurityException se) {
 			return new ResponseEntity<>(new InjestionResponse(employees==null?0:employees.size()), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		InjestionResponse injestResponse = new InjestionResponse(employees.size(), savedEmployees.size(), savedEmployees.size(), employees.size() - savedEmployees.size());
+		InjestionResponse injestResponse = new InjestionResponse(employees.size(), finalList.size(), savedEmployees.size(), employees.size() - savedEmployees.size());
 		
 		return new ResponseEntity<>(injestResponse,HttpStatus.OK);
 	}
-
+	
 	/**
 	 * 
 	 * @param fileName
@@ -208,7 +256,7 @@ public class EmployeeController {
 			employee.setMiddleInitial(value.get(2).trim());
 			employee.setLastName(value.get(3).trim());
 			try {
-				employee.setDateOfBirth(dateFormat.parse(value.get(4).trim()));
+				employee.setDateOfBirth(value.get(4).trim());
 				str = value.get(5);
 				str = str.trim().substring(0, str.length() - 1);
 				employee.setDateOfEmployment(dateFormat.parse(str));
@@ -220,27 +268,30 @@ public class EmployeeController {
 		});
 		return employeesTobeCreated;
 	}
+	
+	/**
+	 * 
+	 * 
+	 *
+	 */
 	class InjestionResponse {
-		int requested;
-		int processed;
+		int requested;		
 		int success;
 		int failure;
 		String message;
 		public InjestionResponse(int requested) {
 			super();
-			this.requested = requested;
-			this.processed = 0;
+			this.requested = requested;			
 			this.success = 0;
 			this.failure = 0;
 			this.message ="Error, Employees not created!";
 		}
 		public InjestionResponse(int requested, int processed, int success, int failure) {
 			super();
-			this.requested = requested;
-			this.processed = processed;
+			this.requested = requested;			
 			this.success = success;
 			this.failure = failure;
-			this.message = new String("Total " + this.success + " out of " + this.requested + " Employees created!");
+			this.message = new String("Total " + this.success + " out of " + this.requested + "new Employees created!");
 		}
 
 		public int getRequested() {
@@ -250,15 +301,7 @@ public class EmployeeController {
 		public void setRequested(int requested) {
 			this.requested = requested;
 		}
-
-		public int getProcessed() {
-			return processed;
-		}
-
-		public void setProcessed(int processed) {
-			this.processed = processed;
-		}
-
+		
 		public int getSuccess() {
 			return success;
 		}
