@@ -43,7 +43,7 @@ import com.kamesh.empmgmt.employee.repo.EmployeeMongoRepository;
  * @author KAMESHC
  *
  */
-@CrossOrigin(origins = "https://empmgmtweb.herokuapp.com/")
+@CrossOrigin(origins = "https://empmgmtweb.herokuapp.com")
 @RestController
 @RequestMapping("/api")
 public class EmployeeController {
