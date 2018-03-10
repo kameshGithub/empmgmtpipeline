@@ -3,19 +3,15 @@
  */
 package com.kamesh.empmgmt.employee.controller;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
+
+import com.kamesh.empmgmt.employee.model.Employee;
+import com.kamesh.empmgmt.employee.model.EmployeeStatus;
+import com.kamesh.empmgmt.employee.repo.EmployeeMongoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -33,11 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import com.kamesh.empmgmt.employee.model.Employee;
-import com.kamesh.empmgmt.employee.model.EmployeeStatus;
-import com.kamesh.empmgmt.employee.repo.EmployeeMongoRepository;
 /**
  * An Employee ReST controller class supporting HTTP Methods GET, POST, PUT, DELETE on employee resource.
  * @author KAMESHC
@@ -193,10 +184,10 @@ public class EmployeeController {
 		List<Employee> finalList = new ArrayList<Employee>();
 		try {
 			List<Employee> existingEmployees = null;
-			ArrayList currentIds = new ArrayList();
-			ArrayList newIds = new ArrayList();
+			List<Long> currentIds = new ArrayList<Long>();
+			List<Long> newIds = new ArrayList<Long>();
 		
-			employees = this.extractEntities(this.readCSV(file));
+			employees = FileParseUtil.getEmployeesFrom(file);
 			String idStrategy = env.getProperty("employee.injest.id.strategy").trim();
 			// ignoreInput strategy means, ignore ID column in file
 			if(idStrategy.equalsIgnoreCase("ignoreInput")) {
@@ -228,112 +219,6 @@ public class EmployeeController {
 			return new ResponseEntity<>(new InjestionResponse(employees==null?0:employees.size()), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		InjestionResponse injestResponse = new InjestionResponse(employees.size(), finalList.size(), savedEmployees.size(), employees.size() - savedEmployees.size());
-		
 		return new ResponseEntity<>(injestResponse,HttpStatus.OK);
-	}
-	
-	/**
-	 * API to read the CSV file of list of employees
-	 * @param fileName
-	 * @return
-	 */
-	private List<List<String>> readCSV(MultipartFile fileName) {
-		List<List<String>> records = null;
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(fileName.getInputStream()))) {
-			records = reader.lines().map(line -> Arrays.asList(line.split(","))).collect(Collectors.toList());
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-		records.remove(0); // Remove header read from file to prevent adding it.
-		return records;
-	}
-
-	/**
-	 * API to create Employee entity out of the data read from CSV file
-	 * @param values
-	 * @return
-	 */
-	private List<Employee> extractEntities(List<List<String>> values) {
-		List<Employee> employeesTobeCreated = new ArrayList<Employee>();
-		DateFormat dateFormat = new ISO8601DateFormat();
-		values.forEach(value -> {
-			System.out.println(value);
-			Employee employee = new Employee();
-			String str = value.get(0);
-			str = str.trim().substring(1);
-			// employee.setId(); // Not to save
-			employee.setEmployeeId(Long.valueOf(str));
-			employee.setFirstName(value.get(1).trim());
-			employee.setMiddleInitial(value.get(2).trim());
-			employee.setLastName(value.get(3).trim());
-			try {
-				employee.setDateOfBirth(value.get(4).trim());
-				str = value.get(5);
-				str = str.trim().substring(0, str.length() - 1);
-				employee.setDateOfEmployment(dateFormat.parse(str));
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-			employee.setStatus(EmployeeStatus.ACTIVE.getValue());
-			employeesTobeCreated.add(employee);
-		});
-		return employeesTobeCreated;
-	}
-	
-	/**
-	 * Inner class to generate employee file injest response.
-	 * 
-	 *
-	 */
-	class InjestionResponse {
-		int requested;		
-		int success;
-		int failure;
-		String message;
-		public InjestionResponse(int requested) {
-			super();
-			this.requested = requested;			
-			this.success = 0;
-			this.failure = 0;
-			this.message ="Error, Employees not created!";
-		}
-		public InjestionResponse(int requested, int processed, int success, int failure) {
-			super();
-			this.requested = requested;			
-			this.success = success;
-			this.failure = failure;
-			this.message = new String("Total " + this.success + " out of " + this.requested + "new Employees created!");
-		}
-
-		public int getRequested() {
-			return requested;
-		}
-
-		public void setRequested(int requested) {
-			this.requested = requested;
-		}
-		
-		public int getSuccess() {
-			return success;
-		}
-
-		public void setSuccess(int success) {
-			this.success = success;
-		}
-
-		public int getFailure() {
-			return failure;
-		}
-
-		public void setFailure(int failure) {
-			this.failure = failure;
-		}
-
-		public String getMessage() {
-			return message;
-		}
-		public void setMessage(String message) {
-			this.message = message;
-		}
-	}
+	}		
 }
