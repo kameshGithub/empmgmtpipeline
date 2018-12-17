@@ -1,54 +1,31 @@
-node {
+pipeline {
+    
     agent any
-    def app
     tools {
         maven 'M3'
-    }
-    stages {
-         stage ("Clone Repository Stage"){
+         
+    stage ("Compile Stage"){
             steps {
-               
-                checkout scm
-            }   
-        }
-        stage ("Compile Stage"){
-            steps {
-               
-                    sh 'mvn clean compile'
-               
-            }
-
-        }
-
-        
-        stage ('Build Image Stage') {
-            steps {
-                
-                app = docker.Build("getintodevops/helloworld")
-               
-            }
-        }
-        stage ('Test Image Stage') {
+                sh 'mvn clean compile'
+             }
+     }
+    stage ('Test Image Stage') {
             steps {
                
                   //  sh 'mvn test'
-                app.inside {
-                    sh 'eho "Tests passed"'
-                }
+             
             }
         }
-        stage ('Push Image') {
-            steps {
-                /**
-                * Set two tags , incremental build number and latest
-                */               
-                docker.withRegistry('htps://registry.hub.docker.com','docker-hub-credentials'){
-                    app.push("${env.BUILD_NUMBER}")
-                    app.push("latest")
-                }
-            }
+        
+  stage ('Build Container Stage') {
+    agent {
+        dockerfile {
+        label 'klable'
+        registryUrl 'htps://registry.hub.docker.com'
+        registryCredentialsId 'docker-hub-credentials'
+        additionalBuildArgs  '--build-arg version=1.0.2'
         }
-        stage ('Deploy Stage') {
+    }
             steps {
                 
                    // sh 'mvn deploy'
