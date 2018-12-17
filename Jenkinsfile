@@ -1,9 +1,16 @@
 pipeline {
     agent any
+    def app
     tools {
         maven 'M3'
     }
     stages {
+         stage ("Clone Repository Stage"){
+            steps {
+               
+                checkout scm
+            }   
+        }
         stage ("Compile Stage"){
             steps {
                
@@ -13,18 +20,38 @@ pipeline {
 
         }
 
-        stage ('Test Stage') {
+        
+        stage ('Build Image Stage') {
             steps {
-               
-                    sh 'mvn test'
                 
+                app = docker.Build("getintodevops/helloworld")
+               
             }
         }
-
+        stage ('Test Image Stage') {
+            steps {
+               
+                  //  sh 'mvn test'
+                app.inside {
+                    sh 'eho "Tests passed"'
+                }
+            }
+        }
+        stage ('Push Image') {
+            steps {
+                /**
+                * Set two tags , incremental build number and latest
+                */               
+                docker.withRegistry('htps://registry.hub.docker.com','docker-hub-credentials'){
+                    app.push("${env.BUILD_NUMBER}")
+                    app.push("latest")
+                }
+            }
+        }
         stage ('Deploy Stage') {
             steps {
                 
-                    sh 'mvn deploy'
+                   // sh 'mvn deploy'
                
             }
         }
