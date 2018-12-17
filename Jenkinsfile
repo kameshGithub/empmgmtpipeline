@@ -1,5 +1,5 @@
 node {
-    agent any
+   
     def app
     tools {
         maven 'M3'
