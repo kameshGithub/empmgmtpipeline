@@ -3,7 +3,7 @@ pipeline {
     agent any
     tools {
         maven 'M3'
-         
+    }   
     stage ("Compile Stage"){
             steps {
                 sh 'mvn clean compile'
