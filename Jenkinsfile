@@ -10,13 +10,7 @@ pipeline {
                 sh 'mvn clean compile'
              }
      }
-    stage ('Test Image Stage') {
-            steps {
-               
-                  //  sh 'mvn test'
-             
-            }
-        }
+    
         
   stage ('Build Container Stage') {
     agent {
@@ -27,11 +21,7 @@ pipeline {
         additionalBuildArgs  '--build-arg version=1.0.2'
         }
     }
-            steps {
-                
-                   // sh 'mvn deploy'
-               
-            }
+           
         }
     }
 }
