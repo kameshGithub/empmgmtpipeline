@@ -29,32 +29,45 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 /**
- * An Employee ReST controller class supporting HTTP Methods GET, POST, PUT, DELETE on employee resource.
+ * An Employee ReST controller class supporting HTTP Methods GET, POST, PUT,
+ * DELETE on employee resource.
+ * 
  * @author KAMESHC
  *
  */
-@CrossOrigin(origins = "https://empmgmtweb.herokuapp.com")
+@CrossOrigin(origins = EmployeeController.FRONTEND_APP)
 @RestController
 @RequestMapping("/api")
 public class EmployeeController {
 
+	/**
+	 *
+	 */
+
+	static final String FRONTEND_APP = "http://localhost";
 	@Autowired
 	EmployeeMongoRepository employeeRepository;
 	@Autowired
 	private Environment env;
+
 	/**
 	 * API to get random number to set for employee ID.
+	 * 
 	 * @return
 	 */
-	private long getNextEmpId(){
+	private long getNextEmpId() {
 		Random r = new Random();
 		int low = 1;
 		int high = 100000;
-		return r.nextInt(high-low) + low;		
+		return r.nextInt(high - low) + low;
 	}
+
 	/**
-	 * GET ReST endpoint for getting all the employees whether Status is ACTIVE or INACTIVE.
+	 * GET ReST endpoint for getting all the employees whether Status is ACTIVE or
+	 * INACTIVE.
+	 * 
 	 * @return
 	 */
 	@GetMapping("/employees/all")
@@ -65,6 +78,7 @@ public class EmployeeController {
 
 	/**
 	 * GET ReST endpoint for getting all the employees which are with status ACTIVE.
+	 * 
 	 * @return
 	 */
 	@GetMapping("/employees")
@@ -74,7 +88,8 @@ public class EmployeeController {
 	}
 
 	/**
-	 * GET ReST endpoint for getting employee by id and return only if status is ACTIVE.
+	 * GET ReST endpoint for getting employee by id and return only if status is
+	 * ACTIVE.
 	 * 
 	 * @return
 	 */
@@ -95,6 +110,7 @@ public class EmployeeController {
 
 	/**
 	 * POST ReST end point to create a new active employee.
+	 * 
 	 * @param customer
 	 * @return
 	 */
@@ -104,9 +120,10 @@ public class EmployeeController {
 		employee.setEmployeeId(getNextEmpId());
 		return new ResponseEntity<>(employeeRepository.save(employee), HttpStatus.CREATED);
 	}
-	
+
 	/**
 	 * Put ReST end point to update the specific employee.
+	 * 
 	 * @param id
 	 * @param employee
 	 * @return
@@ -132,8 +149,10 @@ public class EmployeeController {
 	}
 
 	/**
-	 * Delete end point to update the status of the employee as "INACTIVE" in database. 
-	 * This ReST is used to achieve delete as inactive employees are not retruned in the resposne.
+	 * Delete end point to update the status of the employee as "INACTIVE" in
+	 * database. This ReST is used to achieve delete as inactive employees are not
+	 * retruned in the resposne.
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -151,7 +170,9 @@ public class EmployeeController {
 	}
 
 	/**
-	 * Delete end point to ACTUALLY delete the single employee from database. This ReST is not directly used.
+	 * Delete end point to ACTUALLY delete the single employee from database. This
+	 * ReST is not directly used.
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -163,7 +184,9 @@ public class EmployeeController {
 	}
 
 	/**
-	 * Delete end point to ACTUALLY delete all the employees from database. This ReST is not directly used.
+	 * Delete end point to ACTUALLY delete all the employees from database. This
+	 * ReST is not directly used.
+	 * 
 	 * @return
 	 */
 	@DeleteMapping("/actual/employees")
@@ -172,8 +195,10 @@ public class EmployeeController {
 		employeeRepository.deleteAll();
 		return new ResponseEntity<>("All employees have been deleted!", HttpStatus.OK);
 	}
+
 	/**
-	 * ReST end point to support injesting employees via upload of csv file.  
+	 * ReST end point to support injesting employees via upload of csv file.
+	 * 
 	 * @param file
 	 * @return
 	 */
@@ -186,29 +211,29 @@ public class EmployeeController {
 			List<Employee> existingEmployees = null;
 			List<Long> currentIds = new ArrayList<Long>();
 			List<Long> newIds = new ArrayList<Long>();
-		
+
 			employees = FileParseUtil.getEmployeesFrom(file);
 			String idStrategy = env.getProperty("employee.injest.id.strategy").trim();
 			// ignoreInput strategy means, ignore ID column in file
-			if(idStrategy.equalsIgnoreCase("ignoreInput")) {
-				employees.forEach(item->{
+			if (idStrategy.equalsIgnoreCase("ignoreInput")) {
+				employees.forEach(item -> {
 					item.setEmployeeId(getNextEmpId());
 					finalList.add(item);
 				});
-			}else {  
+			} else {
 				// in this strategy, the application will consider employee id from file and
-				//duplicate id entry will not be created
+				// duplicate id entry will not be created
 				existingEmployees = employeeRepository.findAll();
-				existingEmployees.forEach(item->{
+				existingEmployees.forEach(item -> {
 					currentIds.add(item.getEmployeeId());
 				});
-				employees.forEach(item->{
+				employees.forEach(item -> {
 					newIds.add(item.getEmployeeId());
 				});
 				newIds.removeAll(currentIds);
-				
-				employees.forEach(item->{
-					if(newIds.contains(item.getEmployeeId())) {
+
+				employees.forEach(item -> {
+					if (newIds.contains(item.getEmployeeId())) {
 						finalList.add(item);
 					}
 				});
@@ -216,9 +241,11 @@ public class EmployeeController {
 			System.out.println("Creating " + finalList.size() + " Employees in bulk...");
 			savedEmployees = employeeRepository.save(finalList);
 		} catch (SecurityException se) {
-			return new ResponseEntity<>(new InjestionResponse(employees==null?0:employees.size()), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(new InjestionResponse(employees == null ? 0 : employees.size()),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		InjestionResponse injestResponse = new InjestionResponse(employees.size(), finalList.size(), savedEmployees.size(), employees.size() - savedEmployees.size());
-		return new ResponseEntity<>(injestResponse,HttpStatus.OK);
-	}		
+		InjestionResponse injestResponse = new InjestionResponse(employees.size(), finalList.size(),
+				savedEmployees.size(), employees.size() - savedEmployees.size());
+		return new ResponseEntity<>(injestResponse, HttpStatus.OK);
+	}
 }

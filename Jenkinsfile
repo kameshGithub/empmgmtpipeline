@@ -1,36 +1,36 @@
-pipeline {
-    
-    agent any
-    tools {
-        maven 'M3'
-         
-    stage ("Compile Stage"){
-            steps {
-                sh 'mvn clean compile'
-             }
-     }
-    stage ('Test Image Stage') {
-            steps {
-               
-                  //  sh 'mvn test'
-             
-            }
-        }
-        
-  stage ('Build Container Stage') {
-    agent {
-        dockerfile {
-        label 'klable'
-        registryUrl 'htps://registry.hub.docker.com'
-        registryCredentialsId 'docker-hub-credentials'
-        additionalBuildArgs  '--build-arg version=1.0.2'
+node {
+    def app
+
+    stage('Clone repository') {
+        /* Let's make sure we have the repository cloned to our workspace */
+
+        checkout scm
+    }
+
+    stage('Build image') {
+        /* This builds the actual image; synonymous to
+         * docker build on the command line */
+
+        app = docker.build("devops/helloworld")
+    }
+
+    stage('Test image') {
+        /* Ideally, we would run a test framework against our image.
+         * For this example, we're using a Volkswagen-type approach ;-) */
+
+        app.inside {
+            sh 'echo "Tests passed"'
         }
     }
-            steps {
-                
-                   // sh 'mvn deploy'
-               
-            }
+
+    stage('Push image') {
+        /* Finally, we'll push the image with two tags:
+         * First, the incremental build number from Jenkins
+         * Second, the 'latest' tag.
+         * Pushing multiple tags is cheap, as all the layers are reused. */
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+            app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
         }
-     }
+    }
 }
