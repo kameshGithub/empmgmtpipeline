@@ -1,0 +1,24 @@
+{
+    "builders": [{
+        "type": "docker",
+        "image": "ubuntu:16.04",
+        "commit": true,
+        "changes": [
+            "VOLUME /tmp"
+        ]
+    }],
+
+    "provisioners": [{
+        "type": "ansible",
+        "user": "root",
+        "playbook_file": "provision.yml"
+    }],
+
+    "post-processors": [
+        [{
+            "type": "docker-tag",
+            "repository": "docker.io/kameshc/empmgmtbe_packed",
+            "tag": "latest"
+        }]
+    ]
+}

@@ -1,0 +1,57 @@
+---
+
+
+- name: Provision Python
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Boostrap python
+      raw: test -e /usr/bin/python || (apt-get -y update && apt-get install -y python-minimal)
+
+
+- name: Prepare base image with java & JCE
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Install openJDK8
+      apt: name=openjdk-8-jdk state=present
+    
+    - name: Copy JCE Policy
+      copy:
+        src: ../baseImage/UnlimitedJCEPolicyJDK8/
+        dest: /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/
+        mode: 0755
+        owner: root
+        group: root
+      
+    - name: Create workdir
+      file:
+        path: /app
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+  
+
+    - name: Prepare app image
+      copy:
+        src: ./target/{{ item }}
+        dest: /app/{{ item }}
+        mode: 0755
+        owner: root
+        group: root
+      with_items:
+        - emp-mgmt-0.0.1-SNAPSHOT.jar
+
+    # - name: Start the app
+    #   raw: java -Djava.security.egd=file:/dev/./urandom -Xmx200m -jar /app/emp-mgmt-0.0.1-SNAPSHOT.jar
+
+- name: Container cleanup
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Remove python
+      raw: apt-get purge -y python-minimal && apt-get autoremove -y
+
+    - name: Remove apt lists
+      raw: rm -rf /var/lib/apt/lists/*
