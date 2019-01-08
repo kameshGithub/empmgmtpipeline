@@ -17,7 +17,7 @@ node {
         /* This builds the actual image; synonymous to
          * docker build on the command line */
 
-        app = docker.build("kameshc/empmgmtbe:${env.BUILD_NUMBER})
+        app = docker.build("kameshc/empmgmtbe:${env.BUILD_NUMBER}")
     }
 
     stage('Test image') {
