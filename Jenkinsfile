@@ -1,10 +1,10 @@
 node {
     def app
 
-    stage('Clone repository') {
+    stage('Checkout repository') {
         /* Let's make sure we have the repository cloned to our workspace */
-
-        checkout scm
+        git credentialsId: 'git-creds', url:'https://github.com/kameshGithub/empmgmtpipeline'
+        /*checkout scm
     }
 
     stage('Build image') {
