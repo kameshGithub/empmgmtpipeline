@@ -1,6 +1,6 @@
 node {
     def app
-
+    
     stage('Clone repository') {
         /* Let's make sure we have the repository cloned to our workspace */
 
@@ -8,7 +8,9 @@ node {
     }
     
     stage('Build App') {
-        sh 'mvn -DskipTests clean package 
+       def mvnHome = tool name: 'maven-3', type: 'maven'
+       def mvnCMD = "${mvnHome}/bin/mvn"
+       sh "${mvnCMD} -DskipTests clean package"
     } 
     
     stage('Build image') {
