@@ -6,7 +6,13 @@ node {
         git credentialsId: 'git-creds', url:'https://github.com/kameshGithub/empmgmtpipeline'
         /*checkout scm
     }
-
+    
+    stage('Build App') {
+       def mvnHome = tool name: 'maven-3', type: 'maven'
+       def mvnCMD = "${mvnHome}/bin/mvn"
+       sh "${mvnCMD} -DskipTests clean package"
+    } 
+    
     stage('Build image') {
         /* This builds the actual image; synonymous to
          * docker build on the command line */
