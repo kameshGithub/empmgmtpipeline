@@ -17,7 +17,7 @@ node {
         /* This builds the actual image; synonymous to
          * docker build on the command line */
 
-        app = docker.build("kameshc/empmgmtbe")
+        app = docker.build("kameshc/empmgmtbe:${env.BUILD_NUMBER})
     }
 
     stage('Test image') {
@@ -41,7 +41,7 @@ node {
         withCredentials([string(credentialsId: 'dockerpwd', variable: 'dockerHubPwd')]) {
           sh "docker login -u kameshc -p ${dockerHubPwd}"
         }
-        app.push("${env.BUILD_NUMBER}")
-        app.push("latest")
+        app.push()
+        app.push('latest')
     }
 }
