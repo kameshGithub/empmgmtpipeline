@@ -38,7 +38,7 @@ node {
             app.push("${env.BUILD_NUMBER}")
             app.push("latest")
         }*/
-        withCredentials([string(credentialsId: 'docker-hub-credentials', variable: 'dockerHubPwd')]) {
+        withCredentials([string(credentialsId: 'dockerpwd', variable: 'dockerHubPwd')]) {
           sh "docker login -u kameshc -p ${dockerHubPwd}"
         }
         app.push("${env.BUILD_NUMBER}")
