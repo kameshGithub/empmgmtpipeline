@@ -41,7 +41,7 @@ node {
         withCredentials([string(credentialsId: 'dockerpwd', variable: 'dockerHubPwd')]) {
           sh "docker login -u kameshc -p ${dockerHubPwd}"
           app.push()
-          app.push('latest')
+          
         }
       
     }
