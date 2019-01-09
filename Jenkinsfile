@@ -18,7 +18,7 @@ node {
          * docker build on the command line */
         withCredentials([string(credentialsId: 'dockerpwd', variable: 'dockerHubPwd')]) {
           sh "docker login -u kameshc -p ${dockerHubPwd}"
-           
+          
           image = docker.build("kameshc/empmgmtbe:${env.BUILD_NUMBER}")
         }
     }

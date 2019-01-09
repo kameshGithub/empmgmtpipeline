@@ -2,8 +2,9 @@
 FROM openjdk:8-jdk-alpine
 MAINTAINER kamesh.chauhan@gmail.com
 VOLUME [ "/tmp" ]
-ADD ./target/emp-mgmt-0.0.1-SNAPSHOT.jar /app/
+ARG JAR_FILE
+COPY ${JAR_FILE} /app/app.jar
 
 #ENTRYPOINT [ "/usr/bin/java","-Djava.security.egd=file:/dev/./urandom -Xmx200m"]
-CMD ["/user/bin/java", "-jar","-Djava.security.egd=file:/dev/./urandom -Xmx200m", "/app/emp-mgmt-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar","-Djava.security.egd=file:/dev/./urandom -Xmx200m", "/app/app.jar"]
 EXPOSE 5000
