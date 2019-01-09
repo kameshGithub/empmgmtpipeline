@@ -4,7 +4,7 @@ node {
     stage('Checkout repository') {
         /* Let's make sure we have the repository cloned to our workspace */
         git credentialsId: 'git-creds', url:'https://github.com/kameshGithub/empmgmtpipeline'
-        /*checkout scm
+        /*checkout scm*/
     }
     
     stage('Build App') {
