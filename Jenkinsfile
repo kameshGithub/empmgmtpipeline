@@ -18,6 +18,7 @@ node {
          * docker build on the command line */
          docker.withRegistry('','docker-hub-credentials') {
             app = docker.build("kameshc/empmgmtbe:${env.BUILD_NUMBER}")
+        //   app.push("latest")
         }
         
     }
@@ -37,8 +38,10 @@ node {
          * Second, the 'latest' tag.
          * Pushing multiple tags is cheap, as all the layers are reused. */
         
-           
-            app.push("latest")
+       /*  docker.withRegistry('','docker-hub-credentials') {
+            app = docker.build("kameshc/empmgmtbe:${env.BUILD_NUMBER}")
+        }   */
+       
        
         /* withCredentials([string(credentialsId: 'dockerpwd', variable: 'dockerHubPwd')]) {
           sh "docker login -u kameshc -p ${dockerHubPwd}"
