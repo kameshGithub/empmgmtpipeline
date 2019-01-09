@@ -1,5 +1,5 @@
 
-FROM alpine-java:base
+FROM openjdk:8-jdk-alpine
 MAINTAINER kamesh.chauhan@gmail.com
 VOLUME [ "/tmp" ]
 ADD ./target/emp-mgmt-0.0.1-SNAPSHOT.jar /app/
