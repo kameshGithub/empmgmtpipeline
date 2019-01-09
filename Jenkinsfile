@@ -34,15 +34,15 @@ node {
          * First, the incremental build number from Jenkins
          * Second, the 'latest' tag.
          * Pushing multiple tags is cheap, as all the layers are reused. */
-        /*docker.withRegistry('','docker-hub-credentials') {
+        docker.withRegistry('','docker-hub-credentials') {
             app.push("${env.BUILD_NUMBER}")
             app.push("latest")
-        }*/
-        withCredentials([string(credentialsId: 'dockerpwd', variable: 'dockerHubPwd')]) {
+        }
+        /* withCredentials([string(credentialsId: 'dockerpwd', variable: 'dockerHubPwd')]) {
           sh "docker login -u kameshc -p ${dockerHubPwd}"
           app.push()
           
-        }
+        } */
       
     }
 }
