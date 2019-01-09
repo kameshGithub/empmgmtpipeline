@@ -41,7 +41,7 @@ node {
        /*  docker.withRegistry('','docker-hub-credentials') {
             app = docker.build("kameshc/empmgmtbe:${env.BUILD_NUMBER}")
         }   */
-       
+       app.push()
        
         /* withCredentials([string(credentialsId: 'dockerpwd', variable: 'dockerHubPwd')]) {
           sh "docker login -u kameshc -p ${dockerHubPwd}"
