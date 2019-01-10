@@ -54,7 +54,7 @@ node {
          */
         packedImage = image    
         sh 'packer build packer.json'
-
+        packedImage.tag("packed")
     }
     stage('Push Packed Image') {
         /* Finally, we'll push the image with two tags:
@@ -67,8 +67,8 @@ node {
           app.push()
           
         } */
-            packedImage.push()
-            packedImage.push("latest")
+            // packedImage.push()
+            // packedImage.push("latest")
     }
 
 }
