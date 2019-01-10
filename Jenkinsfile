@@ -1,6 +1,6 @@
 node {
     def image
-
+    def packedImage
     stage('Checkout repository') {
         /* Let's make sure we have the repository cloned to our workspace */
         git credentialsId: 'git-creds', url:'https://github.com/kameshGithub/empmgmtpipeline'
@@ -33,7 +33,7 @@ node {
         }
     }
 
-    stage('Push image') {
+    stage('Push Image') {
         /* Finally, we'll push the image with two tags:
          * First, the incremental build number from Jenkins
          * Second, the 'latest' tag.
@@ -47,4 +47,28 @@ node {
             image.push()
             image.push("latest")
     }
+
+    stage('Pack the Image') {
+        /* Pack the application image with mongodb image contained in it to work
+         * Tag the image as packed by appending _packed
+         */
+        packedImage = image    
+        sh 'packer build packer.json'
+
+    }
+    stage('Push Packed Image') {
+        /* Finally, we'll push the image with two tags:
+         * First, the incremental build number from Jenkins
+         * Second, the 'latest' tag.
+         * Pushing multiple tags is cheap, as all the layers are reused. */
+            
+        /* withCredentials([string(credentialsId: 'dockerpwd', variable: 'dockerHubPwd')]) {
+          sh "docker login -u kameshc -p ${dockerHubPwd}"
+          app.push()
+          
+        } */
+            packedImage.push()
+            packedImage.push("latest")
+    }
+
 }

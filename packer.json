@@ -1,11 +1,14 @@
 {
     "builders": [{
         "type": "docker",
-        "image": "ubuntu:16.04",
+        "image": "kameshc/empmgmtbe",
         "commit": true,
         "changes": [
-            "VOLUME /tmp"
-        ]
+            "VOLUME /tmp",
+            "EXPOSE 5000 27017",
+            "ENTRYPOINT  /bin/sh"
+        ],
+        "run_command": ["-d", "-i", "-t", "{{.Image}}", "/bin/sh"]
     }],
 
     "provisioners": [{

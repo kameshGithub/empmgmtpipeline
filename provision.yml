@@ -1,4 +1,10 @@
 ---
+- name: Handle unavailability of apt-get in alpine
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Update apk
+      raw: apk update
 
 
 - name: Provision Python
@@ -6,16 +12,20 @@
   gather_facts: no
   tasks:
     - name: Boostrap python
-      raw: test -e /usr/bin/python || (apt-get -y update && apt-get install -y python-minimal)
+      raw: apk add --no-cache python2
 
+
+- name: Provision MongoDB
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Download & install MongoDB
+      raw: apk add --no-cache mongodb
 
 - name: Prepare base image with java & JCE
   hosts: all
   gather_facts: no
   tasks:
-    - name: Install openJDK8
-      apt: name=openjdk-8-jdk state=present
-    
     - name: Copy JCE Policy
       copy:
         src: ../baseImage/UnlimitedJCEPolicyJDK8/
@@ -24,34 +34,35 @@
         owner: root
         group: root
       
-    - name: Create workdir
-      file:
-        path: /app
-        state: directory
-        owner: root
-        group: root
-        mode: 0755
+    # - name: Create workdir
+    #   file:
+    #     path: /app
+    #     state: directory
+    #     owner: root
+    #     group: root
+    #     mode: 0755
   
+    # - name: Prepare app image
+    #   copy:
+    #     src: ./target/{{ item }}
+    #     dest: /app/{{ item }}
+    #     mode: 0755
+    #     owner: root
+    #     group: root
+    #   with_items:
+    #     - emp-mgmt-0.0.1-SNAPSHOT.jar
 
-    - name: Prepare app image
-      copy:
-        src: ./target/{{ item }}
-        dest: /app/{{ item }}
-        mode: 0755
-        owner: root
-        group: root
-      with_items:
-        - emp-mgmt-0.0.1-SNAPSHOT.jar
+    - name: Start the DB
+      raw: mongod
 
-    # - name: Start the app
-    #   raw: java -Djava.security.egd=file:/dev/./urandom -Xmx200m -jar /app/emp-mgmt-0.0.1-SNAPSHOT.jar
-
-- name: Container cleanup
-  hosts: all
-  gather_facts: no
-  tasks:
-    - name: Remove python
-      raw: apt-get purge -y python-minimal && apt-get autoremove -y
-
-    - name: Remove apt lists
-      raw: rm -rf /var/lib/apt/lists/*
+    - name: Start the app
+      raw: java -Djava.security.egd=file:/dev/./urandom -Xmx200m -jar /app/empmgmtbe-0.0.1.jar
+    
+# - name: Container cleanup
+#   hosts: all
+#   gather_facts: no
+#   tasks:
+#     - name: Remove python
+#       apk: 
+#         name: python2
+#         state: absent
