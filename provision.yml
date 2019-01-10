@@ -34,13 +34,13 @@
         owner: root
         group: root
       
-    # - name: Create workdir
-    #   file:
-    #     path: /app
-    #     state: directory
-    #     owner: root
-    #     group: root
-    #     mode: 0755
+    - name: Create MongoDB Database DB
+      file:
+        path: /data/db
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
   
     # - name: Prepare app image
     #   copy:
@@ -52,11 +52,11 @@
     #   with_items:
     #     - emp-mgmt-0.0.1-SNAPSHOT.jar
 
-    - name: Start the DB
-      raw: mongod
+    # - name: Start the DB
+    #   raw: mongod
 
-    - name: Start the app
-      raw: java -Djava.security.egd=file:/dev/./urandom -Xmx200m -jar /app/empmgmtbe-0.0.1.jar
+    # - name: Start the app
+    #   raw: java -Djava.security.egd=file:/dev/./urandom -Xmx200m -jar /app/empmgmtbe-0.0.1.jar
     
 # - name: Container cleanup
 #   hosts: all
