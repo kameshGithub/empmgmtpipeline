@@ -28,7 +28,7 @@
   tasks:
     - name: Copy JCE Policy
       copy:
-        src: ../baseImage/UnlimitedJCEPolicyJDK8/
+        src: ./baseImage/UnlimitedJCEPolicyJDK8/
         dest: /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/
         mode: 0755
         owner: root

@@ -44,16 +44,18 @@ node {
           app.push()
           
         } */
-            image.push()
-            image.push("latest")
+           
     }
 
     stage('Pack the Image') {
         /* Pack the application image with mongodb image contained in it to work
          * Tag the image as packed by appending _packed
          */
+        def packerHome = tool name: 'packer', type: 'biz.neustar.jenkins.plugins.packer.PackerInstallation'
+       
         packedImage = image    
-        sh 'packer build packer.json'
+        
+        sh "${packerHome}/packer build packer.json"
         packedImage.tag("packed")
     }
     stage('Push Packed Image') {
