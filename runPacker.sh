@@ -1,12 +1,5 @@
-#!/usr/sh
-set -e
+#!/bin/sh
 
-	
-run_packer() {
-  set -x
-echo "enter into run packer"
-  packer build packer.json
-  set +x
-}
+  packer build ./packer.json
 
-run_packer 
+
